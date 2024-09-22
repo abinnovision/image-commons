@@ -1,0 +1,38 @@
+{
+	"name": "@internal/image-commons",
+	"private": true,
+	"scripts": {
+		"check": "yarn format:check && yarn sort:check",
+		"fix": "yarn format:fix && yarn sort:fix",
+		"format:check": "prettier --ignore-path .gitignore --check '{.github/**/*,*}.{json,json5,yaml,yml,md}'",
+		"format:fix": "prettier --ignore-path .gitignore --write '{.github/**/*,*}.{json,json5,yaml,yml,md}'",
+		"postinstall": "husky",
+		"sort:check": "sort-package-json '{apps,packages}/**!(node_modules)/package.json' 'package.json' --check",
+		"sort:fix": "sort-package-json '{apps,packages}/**!(node_modules)/package.json' 'package.json'"
+	},
+	"commitlint": {
+		"extends": [
+			"@abinnovision/commitlint-config"
+		]
+	},
+	"lint-staged": {
+		"{.github/**/*,*}.{json,json5,yaml,yml,md}": [
+			"prettier --write"
+		],
+		"**/package.json": [
+			"sort-package-json"
+		]
+	},
+	"prettier": "@abinnovision/prettier-config",
+	"devDependencies": {
+		"@abinnovision/commitlint-config": "^2.2.0",
+		"@abinnovision/prettier-config": "^2.1.0",
+		"@commitlint/cli": "^19.5.0",
+		"husky": "^9.1.6",
+		"lint-staged": "^15.2.10",
+		"prettier": "^3.3.3",
+		"sort-package-json": "^2.10.1",
+		"turbo": "^2.1.2"
+	},
+	"packageManager": "yarn@4.5.0"
+}
