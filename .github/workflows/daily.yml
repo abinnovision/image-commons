@@ -21,5 +21,5 @@ jobs:
     uses: ./.github/workflows/remote-repo-build-image.yml
     secrets: inherit
     with:
-      owner: Unstructured-IO
+      owner: unstructured-io
       repo: unstructured-api
