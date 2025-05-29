@@ -1,0 +1,21 @@
+name: Daily
+
+on:
+  # schedule:
+  #   - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    uses: ./.github/workflows/remote-repo-build-image.yml
+    secrets: inherit
+    with:
+      owner: serengil
+      repo: deepface
+
+  # test:
+  #   uses: ./.github/workflows/remote-repo-build-image.yml
+  #   secrets: inherit
+  #   with:
+  #     owner: Unstructured-IO
+  #     repo: unstructured-api
