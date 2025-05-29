@@ -2,6 +2,9 @@
 	"$schema": "https://storage.googleapis.com/abi-hk-schemas/repository-meta.json",
 	"options": {
 		"serviceAccount": true,
+		"artifactRegistry": {
+			"docker": true
+		},
 		"githubApps": {
 			"releaser": true
 		}
