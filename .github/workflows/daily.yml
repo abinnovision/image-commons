@@ -17,9 +17,9 @@ jobs:
       owner: serengil
       repo: deepface
 
-  # unstructured-api:
-  #   uses: ./.github/workflows/remote-repo-build-image.yml
-  #   secrets: inherit
-  #   with:
-  #     owner: Unstructured-IO
-  #     repo: unstructured-api
+  unstructured-api:
+    uses: ./.github/workflows/remote-repo-build-image.yml
+    secrets: inherit
+    with:
+      owner: Unstructured-IO
+      repo: unstructured-api
