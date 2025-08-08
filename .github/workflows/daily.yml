@@ -10,16 +10,16 @@ permissions:
   contents: read
 
 jobs:
-  # deepface:
-  #   uses: ./.github/workflows/remote-repo-build-image.yml
-  #   secrets: inherit
-  #   with:
-  #     owner: serengil
-  #     repo: deepface
-
-  unstructured-api:
+  deepface:
     uses: ./.github/workflows/remote-repo-build-image.yml
     secrets: inherit
     with:
-      owner: unstructured-io
-      repo: unstructured-api
+      owner: serengil
+      repo: deepface
+
+  # unstructured-api:
+  #   uses: ./.github/workflows/remote-repo-build-image.yml
+  #   secrets: inherit
+  #   with:
+  #     owner: unstructured-io
+  #     repo: unstructured-api
