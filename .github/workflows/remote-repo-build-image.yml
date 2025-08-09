@@ -54,3 +54,5 @@ jobs:
             ${{ vars.GCP_AR_DOCKER_URL }}/${{ inputs.owner }}-${{ inputs.repo }}:latest
             ${{ vars.GCP_AR_DOCKER_URL }}/${{ inputs.owner }}-${{ inputs.repo }}:${{ steps.release.outputs.release }}
           context: https://github.com/${{ inputs.owner }}/${{ inputs.repo }}.git#${{ steps.release.outputs.release }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
