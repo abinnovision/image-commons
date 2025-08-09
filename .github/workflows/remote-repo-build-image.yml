@@ -28,12 +28,6 @@ jobs:
           repo: ${{ inputs.repo }}
           excludes: prerelease, draft
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Setup GCP Authentication
         id: auth
         uses: abinnovision/actions@setup-gcp-v1
@@ -51,7 +45,7 @@ jobs:
           IMAGE_NAME: ${{ env.IMAGE_NAME }}
           RELEASE_TAG: ${{ steps.release.outputs.release }}
         run: |
-          echo "$ACCESS_TOKEN" | crane auth login https://europe-west4-docker.pkg.dev --username oauth2accesstoken --password-stdin
+          echo "$ACCESS_TOKEN" | crane auth login europe-west4-docker.pkg.dev --username oauth2accesstoken --password-stdin
           if crane digest "$IMAGE_NAME:$RELEASE_TAG" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
             echo "Image already exists: $IMAGE_NAME:$RELEASE_TAG"
@@ -59,6 +53,14 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
             echo "Image does not exist: $IMAGE_NAME:$RELEASE_TAG"
           fi
+
+      - name: Set up QEMU
+        if: steps.check_image.outputs.exists != 'true'
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        if: steps.check_image.outputs.exists != 'true'
+        uses: docker/setup-buildx-action@v3
 
       - name: Setup Docker Auth
         if: steps.check_image.outputs.exists != 'true'
