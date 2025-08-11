@@ -43,21 +43,21 @@ jobs:
       - name: Setup Crane
         uses: imjasonh/setup-crane@v0.1
 
-      # - name: Check if release tag exists
-      #   id: check_image
-      #   env:
-      #     ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
-      #     IMAGE_NAME: ${{ env.IMAGE_NAME }}
-      #     RELEASE_TAG: ${{ steps.release.outputs.release }}
-      #   run: |
-      #     echo "$ACCESS_TOKEN" | crane auth login europe-west4-docker.pkg.dev --username oauth2accesstoken --password-stdin
-      #     if crane digest "$IMAGE_NAME:$RELEASE_TAG" >/dev/null 2>&1; then
-      #       echo "exists=true" >> "$GITHUB_OUTPUT"
-      #       echo "Image already exists: $IMAGE_NAME:$RELEASE_TAG"
-      #     else
-      #       echo "exists=false" >> "$GITHUB_OUTPUT"
-      #       echo "Image does not exist: $IMAGE_NAME:$RELEASE_TAG"
-      #     fi
+      - name: Check if release tag exists
+        id: check_image
+        env:
+          ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          RELEASE_TAG: ${{ steps.release.outputs.release }}
+        run: |
+          echo "$ACCESS_TOKEN" | crane auth login europe-west4-docker.pkg.dev --username oauth2accesstoken --password-stdin
+          if crane digest "$IMAGE_NAME:$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Image already exists: $IMAGE_NAME:$RELEASE_TAG"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Image does not exist: $IMAGE_NAME:$RELEASE_TAG"
+          fi
 
       - name: Set up QEMU
         if: steps.check_image.outputs.exists != 'true'
