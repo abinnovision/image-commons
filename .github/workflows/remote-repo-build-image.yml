@@ -16,9 +16,14 @@ jobs:
   build-image:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
     env:
       IMAGE_CACHE: ${{ vars.GCP_AR_DOCKER_URL }}/${{ inputs.owner }}-${{ inputs.repo }}-cache
       IMAGE_NAME: ${{ vars.GCP_AR_DOCKER_URL }}/${{ inputs.owner }}-${{ inputs.repo }}
+      IMAGE_NAME_GITHUB: ghcr.io/abinnovision/${{ inputs.owner }}-${{ inputs.repo }}
     steps:
       - id: release
         name: Get latest release of remote repository
@@ -38,21 +43,21 @@ jobs:
       - name: Setup Crane
         uses: imjasonh/setup-crane@v0.1
 
-      - name: Check if release tag exists
-        id: check_image
-        env:
-          ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
-          RELEASE_TAG: ${{ steps.release.outputs.release }}
-        run: |
-          echo "$ACCESS_TOKEN" | crane auth login europe-west4-docker.pkg.dev --username oauth2accesstoken --password-stdin
-          if crane digest "$IMAGE_NAME:$RELEASE_TAG" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "Image already exists: $IMAGE_NAME:$RELEASE_TAG"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-            echo "Image does not exist: $IMAGE_NAME:$RELEASE_TAG"
-          fi
+      # - name: Check if release tag exists
+      #   id: check_image
+      #   env:
+      #     ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+      #     IMAGE_NAME: ${{ env.IMAGE_NAME }}
+      #     RELEASE_TAG: ${{ steps.release.outputs.release }}
+      #   run: |
+      #     echo "$ACCESS_TOKEN" | crane auth login europe-west4-docker.pkg.dev --username oauth2accesstoken --password-stdin
+      #     if crane digest "$IMAGE_NAME:$RELEASE_TAG" >/dev/null 2>&1; then
+      #       echo "exists=true" >> "$GITHUB_OUTPUT"
+      #       echo "Image already exists: $IMAGE_NAME:$RELEASE_TAG"
+      #     else
+      #       echo "exists=false" >> "$GITHUB_OUTPUT"
+      #       echo "Image does not exist: $IMAGE_NAME:$RELEASE_TAG"
+      #     fi
 
       - name: Set up QEMU
         if: steps.check_image.outputs.exists != 'true'
@@ -70,6 +75,22 @@ jobs:
           username: "oauth2accesstoken"
           password: "${{ steps.auth.outputs.access_token }}"
 
+      - name: Setup Docker Auth for Google
+        if: steps.check_image.outputs.exists != 'true'
+        uses: docker/login-action@v2
+        with:
+          registry: "europe-west4-docker.pkg.dev"
+          username: "oauth2accesstoken"
+          password: "${{ steps.auth.outputs.access_token }}"
+
+      - name: Setup Docker Auth for GitHub
+        if: steps.check_image.outputs.exists != 'true'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push
         if: steps.check_image.outputs.exists != 'true'
         uses: docker/build-push-action@v6
@@ -83,4 +104,6 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ steps.release.outputs.release }}
+            ${{ env.IMAGE_NAME_GITHUB }}:latest
+            ${{ env.IMAGE_NAME_GITHUB }}:${{ steps.release.outputs.release }}
           context: https://github.com/${{ inputs.owner }}/${{ inputs.repo }}.git#${{ steps.release.outputs.release }}
